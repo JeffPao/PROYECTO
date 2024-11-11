@@ -219,6 +219,7 @@ class Ui_MainWindow(object):
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
         self.texteditor1 = QtWidgets.QTextEdit(parent=self.centralwidget)
+        self.texteditor1.setEnabled(False)
         self.texteditor1.setGeometry(QtCore.QRect(140, 270, 151, 31))
         self.texteditor1.setObjectName("texteditor1")
         MainWindow.setCentralWidget(self.centralwidget)
@@ -245,6 +246,8 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Cargar archivo.wav"))
 
     
+
+
 
         #Esto llama a la funcion de verificar lo del combobox, al precionar el botton "Comprimir"
         self.button_comprimir.clicked.connect(self.verificar)
