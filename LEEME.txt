@@ -1,0 +1,32 @@
+Hola
+
+La capeta "PROYECTO" contiene ya, las librerias descargadas, lo unico que se tiene que activar es el entorno virual ".env"
+Todos los archivos .py esta hechos para cargar un audio "Piano.wav" ya tocaria cambiarle para cargar cualquier archivo de audio.wav
+
+======== IMPORTANTE ========
+
+No todos los programas y carpetas que estan, son necesarios, los mas IMPORTANTES serian, las carpetas ".env", "Recursos" en especial el audio "In_Piano.wav", 
+y el programa con el nombre de "4_filtro_butterworth" (La version mas completa del programa que reduce el tamaño de un audio sin afectar tanto a su calidad)
+
+La carpeta con nombre de ".env" es el entorno virtual, es decir que sin esa carpeta tendras que instalar todas la librerias en el entorno global que tiene por 
+defecto tu computador. Si te sale la carpeta "versiones_anteriores", esta carpeta contiene los primeros programas que se diseño, estan por si pueden valer mas adelante.
+
+Si se ejecuta un archivo, en teoria los archivos comprimidos se deberian guardar en la misma ruta de donde esta el archivo original.
+
+
+======== ARCHIVOS ========
+
+"1_Audio_reducir.py" - Programa que cargar el archivo de audio.wav, usa la transforama de fourier, aplica un filtro pasa bajos y lo guarda en mp3. 
+"2_Parametros_de_audio.py" - Programa que solo carga los archivos de audio, tanto la original como la reducida, solo para mostrar los parametros como el tamaño, bitrate, relacion de compresion.
+"3_Audio_reducir.py" - Programa que reduce el tamaño de audio.wav y lo guarad en .mp3.
+"4_filtro_butterworth.py" - Programa que cambia el filtro pasa bajos por un filtro Butterworth, en este programa entra los parametros de frecuencia de corte, el orden del filtro, bitrate, y el sample_rate.
+"designer.exe - Acceso directo" - Acceso directo a la interfaz parecida a visual basic, para la intefaz.
+"interfaz_2.py" - Esun pograma de PRUEBA de interfaz para el programa.
+"INTERFAZV2.ui" - Archivo de la interfaz, .ui significa que solo lo abre el Pqt6 Designer.
+"test1.py" y "test2.py" - Son programas que he estado probando para juntar la interfaz y el programa en un solo archivo.py 
+
+======== CARPETAS ========
+
+"Recursos" - Es una carpeta en donde estan guardados las pruebas de los programas.py
+Las demas carpetas, son los audio con diferente frecuencia de corte, en si conclui que la frecuencia de corte afecta a la calidad del audio, no del tamaño del audio.
+En cambio las carpetas que tiene la palabra "bitrate y samplerate", conclui que para bajar el peso del archivo, debe tener menos bitrate.
