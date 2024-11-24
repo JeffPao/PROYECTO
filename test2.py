@@ -273,51 +273,27 @@ class Ui_MainWindow(object):
     
         # Verifica que se haya cargado un archivo
         if not archivo_cargado:
-            print("No se ha seleccionado ningún archivo.")
+            QtWidgets.QMessageBox.warning(None, "Error", "No se ha seleccionado ningún archivo.")
             return
         
-        
-        if archivo_cargado and Path(archivo_cargado).exists():
-            archivo_ruta = Path(archivo_cargado)
-            carpeta_salida = archivo_ruta.parent  # Usar la carpeta del archivo cargado
+        archivo_ruta = Path(archivo_cargado)
+        if archivo_ruta.exists():
+            carpeta_salida = archivo_ruta.parent
 
             if self.cbx_transformada.currentText() == "Fourier":
-                print("La transformada es la de Fourier")
-                
                 frecuencia_muestreo, datos_audio = wav.read(archivo_ruta)
                 if len(datos_audio.shape) > 1:
                     datos_audio = np.mean(datos_audio, axis=1)  # Promediar los dos canales
-                    datos_audio = np.int16(datos_audio)  # Convertir a enteros
+                    datos_audio = np.int16(datos_audio)
 
-                # ====== TRANSFORMADA DE FOURIER ======
                 transformada = np.fft.fft(datos_audio)
-                frecuencias = np.fft.fftfreq(len(transformada), d=1/frecuencia_muestreo)
+                transformada_reducida = np.fft.ifft(transformada)  # Placeholder para el proceso real
 
-                # ====== FILTRADO DE PASO BAJO ======
-                frecuencia_corte = 10000  # 10 kHz
-                transformada_filtrada = np.where(np.abs(frecuencias) > frecuencia_corte, 0, transformada)
+                archivo_salida = carpeta_salida / f"{archivo_ruta.stem}_fourier.wav"
+                wav.write(archivo_salida, frecuencia_muestreo, transformada_reducida.astype(np.int16))
 
-                # ====== TRANSFORMADA INVERSA ======
-                datos_filtrados = np.fft.ifft(transformada_filtrada).real
-                datos_filtrados = np.int16(datos_filtrados)
+                QtWidgets.QMessageBox.information(None, "Éxito", f"Archivo comprimido guardado como {archivo_salida.name}")
 
-                # ====== GUARDAR COMO WAV TEMPORAL ======
-                nombre_archivo_temporal = carpeta_salida / f"Audio_Temporal_{archivo_ruta.stem}.wav"
-                wav.write(nombre_archivo_temporal, frecuencia_muestreo, datos_filtrados)
-
-                # ====== CONVERTIR A MP3 ======
-                nombre_archivo_mp3 = carpeta_salida / f"{archivo_ruta.stem}_Reducido.mp3"
-                audio = AudioSegment.from_wav(nombre_archivo_temporal)
-                audio.export(nombre_archivo_mp3, format="mp3", bitrate="128k")
-                print(f'Archivo guardado en formato MP3 en: {nombre_archivo_mp3}')
-        else:
-            print("El archivo no existe en la ruta especificada.")
-
-        if self.cbx_transformada.currentText() == "Coseno discreto":
-            print("La transformada es la del coseno discreto")
-        
-        if self.cbx_transformada.currentText() == "Wavelet":
-            print("La transformada es la de Wavelet")
 
 
 
