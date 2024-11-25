@@ -8,8 +8,10 @@ import numpy as np
 from pydub import AudioSegment
 from datetime import datetime
 from scipy.signal import butter, filtfilt
+from scipy.fft import fft, ifft
 from scipy.fftpack import dct, idct
 import pywt
+
 
 #Parametros base del programa
 archivo_cargado = None
@@ -17,19 +19,16 @@ bitrate = "32k"
 frecuencia_de_corte = 500
 sample_rate = 16000
 orden_filtro = 2
-
-#Ventana del programa
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(470, 743)
+        MainWindow.resize(444, 809)
         MainWindow.setBaseSize(QtCore.QSize(400, 500))
-        palette = QtGui.QPalette()
         # Deshabilitar maximización
         MainWindow.setWindowFlags(QtCore.Qt.WindowType.WindowCloseButtonHint | QtCore.Qt.WindowType.WindowMinimizeButtonHint)
         MainWindow.setFixedSize(MainWindow.size())
-
+        palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
         palette.setBrush(QtGui.QPalette.ColorGroup.Active, QtGui.QPalette.ColorRole.WindowText, brush)
@@ -182,7 +181,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.cbx_transformada = QtWidgets.QComboBox(parent=self.centralwidget)
-        self.cbx_transformada.setGeometry(QtCore.QRect(140, 130, 181, 21))
+        self.cbx_transformada.setGeometry(QtCore.QRect(140, 110, 181, 21))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setBold(False)
@@ -192,7 +191,7 @@ class Ui_MainWindow(object):
         self.cbx_transformada.addItem("")
         self.cbx_transformada.addItem("")
         self.label = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(160, 110, 151, 21))
+        self.label.setGeometry(QtCore.QRect(160, 90, 151, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -200,7 +199,7 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.button_comprimir = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button_comprimir.setGeometry(QtCore.QRect(70, 550, 151, 41))
+        self.button_comprimir.setGeometry(QtCore.QRect(60, 610, 161, 31))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(12)
@@ -211,10 +210,10 @@ class Ui_MainWindow(object):
         self.button_comprimir.setCheckable(False)
         self.button_comprimir.setObjectName("button_comprimir")
         self.cargar_button = QtWidgets.QToolButton(parent=self.centralwidget)
-        self.cargar_button.setGeometry(QtCore.QRect(280, 60, 71, 31))
+        self.cargar_button.setGeometry(QtCore.QRect(280, 40, 71, 31))
         self.cargar_button.setObjectName("cargar_button")
         self.label_2 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(170, 30, 131, 21))
+        self.label_2.setGeometry(QtCore.QRect(170, 10, 131, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -223,10 +222,10 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName("label_2")
         self.texteditor1 = QtWidgets.QTextEdit(parent=self.centralwidget)
         self.texteditor1.setEnabled(False)
-        self.texteditor1.setGeometry(QtCore.QRect(120, 60, 151, 31))
+        self.texteditor1.setGeometry(QtCore.QRect(120, 40, 151, 31))
         self.texteditor1.setObjectName("texteditor1")
         self.button_descomprimir = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button_descomprimir.setGeometry(QtCore.QRect(230, 550, 161, 41))
+        self.button_descomprimir.setGeometry(QtCore.QRect(230, 610, 161, 31))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(12)
@@ -237,7 +236,7 @@ class Ui_MainWindow(object):
         self.button_descomprimir.setCheckable(False)
         self.button_descomprimir.setObjectName("button_descomprimir")
         self.button_analisis = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button_analisis.setGeometry(QtCore.QRect(150, 160, 161, 41))
+        self.button_analisis.setGeometry(QtCore.QRect(150, 140, 161, 41))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(12)
@@ -248,12 +247,12 @@ class Ui_MainWindow(object):
         self.button_analisis.setCheckable(False)
         self.button_analisis.setObjectName("button_analisis")
         self.tabWidget = QtWidgets.QTabWidget(parent=self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(40, 280, 391, 251))
+        self.tabWidget.setGeometry(QtCore.QRect(30, 210, 391, 191))
         self.tabWidget.setObjectName("tabWidget")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
         self.textEdit_DFT_Orden = QtWidgets.QTextEdit(parent=self.tab_3)
-        self.textEdit_DFT_Orden.setGeometry(QtCore.QRect(220, 70, 61, 31))
+        self.textEdit_DFT_Orden.setGeometry(QtCore.QRect(210, 70, 101, 31))
         self.textEdit_DFT_Orden.setObjectName("textEdit_DFT_Orden")
         self.label_3 = QtWidgets.QLabel(parent=self.tab_3)
         self.label_3.setGeometry(QtCore.QRect(110, 0, 171, 21))
@@ -264,13 +263,10 @@ class Ui_MainWindow(object):
         self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
         self.textEdit_DFT_f_corte = QtWidgets.QTextEdit(parent=self.tab_3)
-        self.textEdit_DFT_f_corte.setGeometry(QtCore.QRect(220, 30, 61, 31))
+        self.textEdit_DFT_f_corte.setGeometry(QtCore.QRect(210, 30, 101, 31))
         self.textEdit_DFT_f_corte.setObjectName("textEdit_DFT_f_corte")
-        self.textEdit_fft_bitrate = QtWidgets.QTextEdit(parent=self.tab_3)
-        self.textEdit_fft_bitrate.setGeometry(QtCore.QRect(220, 110, 61, 31))
-        self.textEdit_fft_bitrate.setObjectName("textEdit_fft_bitrate")
         self.label_10 = QtWidgets.QLabel(parent=self.tab_3)
-        self.label_10.setGeometry(QtCore.QRect(80, 20, 141, 51))
+        self.label_10.setGeometry(QtCore.QRect(60, 20, 141, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -278,32 +274,33 @@ class Ui_MainWindow(object):
         self.label_10.setFont(font)
         self.label_10.setObjectName("label_10")
         self.label_11 = QtWidgets.QLabel(parent=self.tab_3)
-        self.label_11.setGeometry(QtCore.QRect(120, 60, 101, 51))
+        self.label_11.setGeometry(QtCore.QRect(80, 60, 101, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
         self.label_11.setFont(font)
         self.label_11.setObjectName("label_11")
-        self.label_12 = QtWidgets.QLabel(parent=self.tab_3)
-        self.label_12.setGeometry(QtCore.QRect(170, 100, 51, 51))
+        self.label_20 = QtWidgets.QLabel(parent=self.tab_3)
+        self.label_20.setGeometry(QtCore.QRect(80, 100, 91, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
-        self.label_12.setFont(font)
-        self.label_12.setObjectName("label_12")
-        self.label_13 = QtWidgets.QLabel(parent=self.tab_3)
-        self.label_13.setGeometry(QtCore.QRect(130, 140, 81, 51))
+        self.label_20.setFont(font)
+        self.label_20.setObjectName("label_20")
+        self.comboBox_tipo_de_filtro_dft = QtWidgets.QComboBox(parent=self.tab_3)
+        self.comboBox_tipo_de_filtro_dft.setGeometry(QtCore.QRect(180, 110, 131, 31))
         font = QtGui.QFont()
-        font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
-        self.label_13.setFont(font)
-        self.label_13.setObjectName("label_13")
-        self.textEdit_fft_samplerate = QtWidgets.QTextEdit(parent=self.tab_3)
-        self.textEdit_fft_samplerate.setGeometry(QtCore.QRect(220, 150, 61, 31))
-        self.textEdit_fft_samplerate.setObjectName("textEdit_fft_samplerate")
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setKerning(True)
+        self.comboBox_tipo_de_filtro_dft.setFont(font)
+        self.comboBox_tipo_de_filtro_dft.setObjectName("comboBox_tipo_de_filtro_dft")
+        self.comboBox_tipo_de_filtro_dft.addItem("")
+        self.comboBox_tipo_de_filtro_dft.addItem("")
         self.tabWidget.addTab(self.tab_3, "")
         self.tab_4 = QtWidgets.QWidget()
         self.tab_4.setObjectName("tab_4")
@@ -394,7 +391,7 @@ class Ui_MainWindow(object):
         self.label_19.setObjectName("label_19")
         self.tabWidget.addTab(self.tab_7, "")
         self.label_4 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_4.setGeometry(QtCore.QRect(120, 260, 241, 21))
+        self.label_4.setGeometry(QtCore.QRect(110, 190, 241, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -402,7 +399,7 @@ class Ui_MainWindow(object):
         self.label_4.setFont(font)
         self.label_4.setObjectName("label_4")
         self.label_7 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_7.setGeometry(QtCore.QRect(160, 610, 141, 21))
+        self.label_7.setGeometry(QtCore.QRect(160, 660, 141, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -411,14 +408,14 @@ class Ui_MainWindow(object):
         self.label_7.setObjectName("label_7")
         self.textEdit_TAMANO_INICIAL = QtWidgets.QTextEdit(parent=self.centralwidget)
         self.textEdit_TAMANO_INICIAL.setEnabled(False)
-        self.textEdit_TAMANO_INICIAL.setGeometry(QtCore.QRect(90, 660, 131, 31))
+        self.textEdit_TAMANO_INICIAL.setGeometry(QtCore.QRect(90, 710, 131, 31))
         self.textEdit_TAMANO_INICIAL.setObjectName("textEdit_TAMANO_INICIAL")
         self.textEdit_TAMANO_FINAL = QtWidgets.QTextEdit(parent=self.centralwidget)
         self.textEdit_TAMANO_FINAL.setEnabled(False)
-        self.textEdit_TAMANO_FINAL.setGeometry(QtCore.QRect(230, 660, 131, 31))
+        self.textEdit_TAMANO_FINAL.setGeometry(QtCore.QRect(230, 710, 131, 31))
         self.textEdit_TAMANO_FINAL.setObjectName("textEdit_TAMANO_FINAL")
         self.label_8 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_8.setGeometry(QtCore.QRect(140, 630, 61, 21))
+        self.label_8.setGeometry(QtCore.QRect(140, 680, 61, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -426,16 +423,61 @@ class Ui_MainWindow(object):
         self.label_8.setFont(font)
         self.label_8.setObjectName("label_8")
         self.label_9 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_9.setGeometry(QtCore.QRect(280, 630, 41, 21))
+        self.label_9.setGeometry(QtCore.QRect(280, 680, 41, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
         self.label_9.setFont(font)
         self.label_9.setObjectName("label_9")
+        self.button_Filtro = QtWidgets.QPushButton(parent=self.centralwidget)
+        self.button_Filtro.setGeometry(QtCore.QRect(180, 410, 101, 31))
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setKerning(True)
+        self.button_Filtro.setFont(font)
+        self.button_Filtro.setCheckable(False)
+        self.button_Filtro.setObjectName("button_Filtro")
+        self.groupBox = QtWidgets.QGroupBox(parent=self.centralwidget)
+        self.groupBox.setGeometry(QtCore.QRect(30, 450, 391, 141))
+        self.groupBox.setTitle("")
+        self.groupBox.setObjectName("groupBox")
+        self.label_21 = QtWidgets.QLabel(parent=self.groupBox)
+        self.label_21.setGeometry(QtCore.QRect(100, 10, 211, 21))
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setBold(True)
+        font.setItalic(False)
+        self.label_21.setFont(font)
+        self.label_21.setObjectName("label_21")
+        self.textEdit_samplerate = QtWidgets.QTextEdit(parent=self.groupBox)
+        self.textEdit_samplerate.setGeometry(QtCore.QRect(200, 40, 111, 31))
+        self.textEdit_samplerate.setObjectName("textEdit_samplerate")
+        self.label_13 = QtWidgets.QLabel(parent=self.groupBox)
+        self.label_13.setGeometry(QtCore.QRect(100, 30, 81, 51))
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setBold(True)
+        font.setItalic(False)
+        self.label_13.setFont(font)
+        self.label_13.setObjectName("label_13")
+        self.label_12 = QtWidgets.QLabel(parent=self.groupBox)
+        self.label_12.setGeometry(QtCore.QRect(130, 80, 51, 31))
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setBold(True)
+        font.setItalic(False)
+        self.label_12.setFont(font)
+        self.label_12.setObjectName("label_12")
+        self.textEdit_bitrate = QtWidgets.QTextEdit(parent=self.groupBox)
+        self.textEdit_bitrate.setGeometry(QtCore.QRect(200, 80, 111, 31))
+        self.textEdit_bitrate.setObjectName("textEdit_bitrate")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 470, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 444, 22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(parent=MainWindow)
@@ -461,8 +503,9 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Transformada de Fourier"))
         self.label_10.setText(_translate("MainWindow", "Frecuencia de corte"))
         self.label_11.setText(_translate("MainWindow", "Orden de filtro"))
-        self.label_12.setText(_translate("MainWindow", "Bitrate"))
-        self.label_13.setText(_translate("MainWindow", "Sample rate"))
+        self.label_20.setText(_translate("MainWindow", "Tipo de filtro"))
+        self.comboBox_tipo_de_filtro_dft.setItemText(0, _translate("MainWindow", "Filtro pasa bajo"))
+        self.comboBox_tipo_de_filtro_dft.setItemText(1, _translate("MainWindow", "Filtro pasa alto"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "DFT"))
         self.label_5.setText(_translate("MainWindow", "Transformada de Discreta del Coseno"))
         self.label_14.setText(_translate("MainWindow", "Umbral"))
@@ -474,17 +517,22 @@ class Ui_MainWindow(object):
         self.label_18.setText(_translate("MainWindow", "Sample rate"))
         self.label_19.setText(_translate("MainWindow", "Bitrate"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "DWT"))
-        self.label_4.setText(_translate("MainWindow", "CONFIGURACION DE PARAMETROS"))
+        self.label_4.setText(_translate("MainWindow", "PARAMETROS DE TRANSFORMADAS"))
         self.label_7.setText(_translate("MainWindow", "Tamaño del archivo"))
         self.label_8.setText(_translate("MainWindow", "Inicial"))
         self.label_9.setText(_translate("MainWindow", "Final"))
+        self.button_Filtro.setText(_translate("MainWindow", "FILTRO"))
+        self.label_21.setText(_translate("MainWindow", "PARAMETROS DE COMPRESION"))
+        self.label_13.setText(_translate("MainWindow", "Sample rate"))
+        self.label_12.setText(_translate("MainWindow", "Bitrate"))
 
 
         #PROGRAMA
-        self.button_analisis.clicked.connect(self.graficas)
-        self.button_comprimir.clicked.connect(self.compresion)
-        #self.button_descomprimir.clicked.connect(self.graficas)
         self.cargar_button.clicked.connect(self.cargar_archivo)
+        self.button_analisis.clicked.connect(self.graficas)
+        self.button_Filtro.clicked.connect(self.filtro)
+        self.button_comprimir.clicked.connect(self.compresion)
+        
         
 
     def cargar_archivo(self):
@@ -522,8 +570,14 @@ class Ui_MainWindow(object):
 
             # ---------- TRANSFORMADAS ----------
             # ====== GRAFICAR TRANSFORMADA DE FOURIER ======
-            transformada_fft = np.fft.fft(datos_audio)
+            transformada_fft = fft(datos_audio)
             frecuencias = np.fft.fftfreq(len(transformada_fft), d=1/frecuencia_muestreo)
+
+            # Submuestreo para graficar menos puntos
+            factor_submuestreo = 100  # Cambia este valor según tu necesidad
+            frecuencias_sub = frecuencias[::factor_submuestreo]
+            fft_magnitud_sub = np.abs(transformada_fft[::factor_submuestreo])
+
             # ====== GRAFICA TRANSFORMADA DEL COSENO DISCRETA ======
             dct_data = dct(datos_audio, type=2, norm='ortho')
             # ====== TRANSFORMADA WAVELET ======
@@ -553,7 +607,7 @@ class Ui_MainWindow(object):
             if transformada == "Fourier":
                 print("Realizando Transformada de Fourier (DFT)")
                 plt.figure(figsize=(10, 6))
-                plt.plot(frecuencias[:len(frecuencias)//2], np.abs(transformada_fft)[:len(frecuencias)//2])  # Solo la mitad positiva del espectro
+                plt.plot(frecuencias_sub, fft_magnitud_sub)
                 plt.title('Transformada de Fourier del Audio')
                 plt.xlabel('Frecuencia (Hz)')
                 plt.ylabel('Amplitud')
@@ -583,7 +637,7 @@ class Ui_MainWindow(object):
         else:
             print("El archivo no existe.")
              
-    def compresion(self):
+    def filtro(self):
         global archivo_cargado, bitrate, frecuencia_de_corte, sample_rate, orden_filtro
 
         if not archivo_cargado:
@@ -597,7 +651,6 @@ class Ui_MainWindow(object):
                 self.validar_dft()
                 self.dft()
 
-
             if self.cbx_transformada.currentText() == "Coseno discreto":
                 #VALIDACION DE PARAMETROS
                 print("Transformada del coseno discreta")
@@ -609,6 +662,37 @@ class Ui_MainWindow(object):
                 print("Transformada de Wavelet")
                 self.validar_dwt()
                 
+    def compresion(self):
+        global sample_rate, bitrate, archivo_cargado
+        # ====== Verificar archivo cargado ======
+        if not archivo_cargado or not Path(archivo_cargado).exists():
+            print("Error: No se encontró el archivo WAV cargado.")
+            return
+
+        # Validar los parámetros antes de continuar
+        if not self.validar_P_compresion():
+            return
+
+        try:
+            # Cargar valores de las cajas de texto
+            sample_rate = int(self.textEdit_samplerate.toPlainText().strip())
+            bitrate = int(self.textEdit_bitrate.toPlainText().strip())
+            print(f"Muestreo: {sample_rate}, Bitrate: {bitrate}")
+        except ValueError:
+            print("Error: Uno o más valores no son válidos.")
+            return
+
+        
+
+        # ====== CONVERTIR A MP3 ======
+        archivo_ruta = Path(archivo_cargado)
+        carpeta_salida = archivo_ruta.parent
+
+        nombre_archivo_mp3 = carpeta_salida / f"{archivo_ruta.stem}_Reducido.mp3"
+        audio = AudioSegment.from_wav(archivo_cargado)
+        audio.export(nombre_archivo_mp3, format="mp3", bitrate="32k")
+        print(f'Archivo guardado en formato MP3 en: {nombre_archivo_mp3}')
+
 
             
             
@@ -621,7 +705,7 @@ class Ui_MainWindow(object):
     """________ VALIDACIONES DE RECUADROS VACIOS ________"""
     def validar_dft(self):
         # Lista de cuadros de texto a validar
-        Cuadros_texto = [self.textEdit_DFT_f_corte, self.textEdit_DFT_Orden, self.textEdit_fft_bitrate, self.textEdit_fft_samplerate]
+        Cuadros_texto = [self.textEdit_DFT_f_corte, self.textEdit_DFT_Orden]
 
         # Verificar si alguno está vacío
         campos_vacios = [field for field in Cuadros_texto if not field.toPlainText().strip()]
@@ -654,16 +738,98 @@ class Ui_MainWindow(object):
             print("Advertencia", "Hay uno o más campos vacíos. Por favor, complételos.")
         else:
             print("Éxito", "Todos los campos están llenos.")
+    
+    def validar_P_compresion(self):
+        """
+        Valida que los cuadros de texto requeridos para la compresión no estén vacíos.
+
+        Returns:
+            bool: True si todos los campos están llenos, False si alguno está vacío.
+        """
+        # Lista de cuadros de texto a validar
+        Cuadros_texto = [self.textEdit_samplerate, self.textEdit_bitrate]
+
+        # Verificar si alguno está vacío
+        campos_vacios = [field for field in Cuadros_texto if not field.toPlainText().strip()]
+
+        if campos_vacios:
+            print("Error: Hay uno o más campos vacíos. Por favor, complételos.")
+            return False  # Falla la validación
+        else:
+            print("Validación exitosa: Todos los campos están llenos.")
+            return True  # Validación exitosa
+
     """ _________________________________________________"""
+
+
+
+
+
+
+
+
 
     """__________________ TRANSFORMADAS __________________"""
     def dft(self):
-        global frecuencia_de_corte, orden_filtro, bitrate, sample_rate, archivo_cargado
+        global frecuencia_de_corte, orden_filtro, archivo_cargado
+
+        # Leer el archivo de audio
+        fre_muestreo, datos_audio = wav.read(archivo_cargado)
+
+        try:
+            # Cargar valores de las cajas de texto
+            frecuencia_de_corte = float(self.textEdit_DFT_f_corte.toPlainText().strip())
+            orden_filtro = int(self.textEdit_DFT_Orden.toPlainText().strip())
+            print(f"Frecuencia de corte: {frecuencia_de_corte}, Orden del filtro: {orden_filtro}")
+
+        except ValueError:
+            print("Error: Uno o más valores no son válidos.")
+            return
+
+        # Comprobar que la frecuencia de corte es válida
+        nyquist = 0.5 * fre_muestreo
+        if frecuencia_de_corte >= nyquist:
+            print("Error: La frecuencia de corte no puede ser mayor o igual a la frecuencia de Nyquist.")
+            return
+
+        # Convertir a mono si el audio tiene más de un canal
+        if len(datos_audio.shape) > 1:
+            datos_audio = np.mean(datos_audio, axis=1)
+            datos_audio = np.int16(datos_audio)
+
+        # Calcular la FFT de la señal
+        ff_audio = fft(datos_audio)
+        T = 1 / fre_muestreo
+        freq = np.fft.fftfreq(len(datos_audio), T)
+        freq = np.abs(freq)  # Tomar magnitud para evitar problemas con frecuencias negativas
+
+
+        tipo_filtro = self.comboBox_tipo_de_filtro_dft.currentText()
+        # Crear el filtro Butterworth en el dominio de la frecuencia
+        if tipo_filtro == "Filtro pasa bajo":
+            filtro = 1 / (1 + (freq / frecuencia_de_corte) ** (2 * orden_filtro))
+        elif tipo_filtro == "Filtro pasa alto":
+            filtro = 1 / (1 + (frecuencia_de_corte / np.maximum(freq, 1e-10)) ** (2 * orden_filtro))
+
+        # Aplicar el filtro a la FFT
+        fft_filtrado = ff_audio * filtro
+
+        # Transformada inversa para volver al dominio temporal
+        data_filtrada = np.real(ifft(fft_filtrado))
+
+        # Normalizar y convertir a enteros
+        data_filtrada = data_filtrada / np.max(np.abs(data_filtrada)) * np.max(np.abs(datos_audio))
+        data_filtrada = np.int16(data_filtrada)
+
+        # Guardar el archivo filtrado
+        fecha_hora = datetime.now().strftime("%Y%m%d_%H%M%S")  # Formato: AAAAMMDD_HHMMSS
+        nombre_con_fecha = f"Audio_DFT_{fecha_hora}{Path(archivo_cargado).suffix}"
+        name_archivo = Path(archivo_cargado).with_name(nombre_con_fecha)
+        wav.write(name_archivo, fre_muestreo, data_filtrada)
+
+        print(f"Archivo filtrado guardado en: {name_archivo}")
 
         
-
-
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

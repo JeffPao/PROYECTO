@@ -2,6 +2,7 @@ from pathlib import Path
 import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import butter, filtfilt
 from pydub import AudioSegment
 
 # ====== CARGAR AUDIO ======
@@ -15,17 +16,18 @@ if ruta_archivo.exists():
         datos_audio = np.mean(datos_audio, axis=1)  # Promediar los dos canales
         datos_audio = np.int16(datos_audio)  # Convertir a enteros
 
-    # ====== TRANSFORMADA DE FOURIER ======
-    transformada = np.fft.fft(datos_audio)
-    frecuencias = np.fft.fftfreq(len(transformada), d=1/frecuencia_muestreo)
+    # ====== FILTRADO DE PASO BAJO CON BUTTERWORTH ======
+    frecuencia_corte = 20000  # Hz
+    orden_filtro = 2 # Orden del filtro
 
-    # ====== FILTRADO DE PASO BAJO ======
-    frecuencia_corte = 2000  # Hz
-    transformada_filtrada = np.where(np.abs(frecuencias) > frecuencia_corte, 0, transformada)
+    # Normalizar la frecuencia de corte en función de la frecuencia de muestreo
+    nyquist = 0.5 * frecuencia_muestreo
+    frecuencia_normalizada = frecuencia_corte / nyquist
 
-    # ====== TRANSFORMADA INVERSA ======
-    datos_filtrados = np.fft.ifft(transformada_filtrada).real
-    datos_filtrados = np.int16(datos_filtrados)
+    # Crear el filtro Butterworth
+    b, a = butter(orden_filtro, frecuencia_normalizada, btype='low')
+    datos_filtrados = filtfilt(b, a, datos_audio)
+    datos_filtrados = np.int16(datos_filtrados)  # Convertir a enteros
 
     # ====== GUARDAR COMO WAV TEMPORAL ======
     nombre_archivo_temporal = ruta_archivo.with_name('Audio_Temporal.wav')
@@ -34,21 +36,25 @@ if ruta_archivo.exists():
     # ====== CONVERTIR A MP3 ======
     nombre_archivo_mp3 = ruta_archivo.with_name('Audio_Reducido.mp3')
     audio = AudioSegment.from_wav(nombre_archivo_temporal)
-    audio.export(nombre_archivo_mp3, format="mp3", bitrate="128k")
+
+    # Ajustes para reducir el tamaño
+    bitrate = "32000"  # Cambia a un bitrate menor, como "64k" o "32k" para reducir el tamaño
+    sample_rate = 16000  # Opcional: cambia a 16000 o 8000 para reducir aún más el tamaño y la calidad
+
+    # Exportar el audio con ajustes
+    audio.export(nombre_archivo_mp3, format="mp3", bitrate=bitrate, parameters=["-ar", str(sample_rate)])
     print(f'Archivo guardado en formato MP3 en: {nombre_archivo_mp3}')
     
     # ====== GRAFICAR TRANSFORMADA DE FOURIER ======
+    transformada = np.fft.fft(datos_audio)
+    frecuencias = np.fft.fftfreq(len(transformada), d=1/frecuencia_muestreo)
+
     plt.figure(figsize=(10, 6))
-    plt.plot(frecuencias[:len(frecuencias)//2], np.abs(transformada)[:len(frecuencias)//2])  # Solo la mitad positiva del espectro
+    plt.plot(frecuencias, np.abs(transformada))  # Solo la mitad positiva del espectro
     plt.title('Transformada de Fourier del Audio')
     plt.xlabel('Frecuencia (Hz)')
     plt.ylabel('Amplitud')
     plt.grid(True)
     plt.show()
-
-
-
-
-
 else:
     print("El archivo no existe en la ruta especificada.")
