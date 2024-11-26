@@ -2,7 +2,7 @@ import numpy as np
 import soundfile as sf
 from scipy.fftpack import dct, idct
 
-def comprimir_audio_con_dct(audio_data, umbral=0.00005):
+def comprimir_audio_con_dct(audio_data, umbral=0.01):
     """
     Comprime el audio utilizando la DCT y eliminando coeficientes de baja magnitud.
     
@@ -31,7 +31,7 @@ if len(audio_data.shape) > 1:
     audio_data = audio_data[:, 0]
 
 # Comprimir el audio utilizando la DCT
-audio_comprimido = comprimir_audio_con_dct(audio_data, umbral=0.00005)
+audio_comprimido = comprimir_audio_con_dct(audio_data, umbral=0.01)
 
 # Asegúrate de que los valores estén dentro del rango permitido por el formato WAV
 audio_comprimido = np.clip(audio_comprimido, -1.0, 1.0)

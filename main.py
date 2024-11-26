@@ -11,7 +11,8 @@ from scipy.signal import butter, filtfilt
 from scipy.fft import fft, ifft
 from scipy.fftpack import dct, idct
 import pywt
-
+import soundfile as sf
+import os
 
 #Parametros base del programa
 archivo_cargado = None
@@ -19,11 +20,12 @@ bitrate = "32k"
 frecuencia_de_corte = 500
 sample_rate = 16000
 orden_filtro = 2
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(444, 809)
+        MainWindow.resize(444, 760)
         MainWindow.setBaseSize(QtCore.QSize(400, 500))
         # Deshabilitar maximización
         MainWindow.setWindowFlags(QtCore.Qt.WindowType.WindowCloseButtonHint | QtCore.Qt.WindowType.WindowMinimizeButtonHint)
@@ -199,7 +201,7 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.button_comprimir = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button_comprimir.setGeometry(QtCore.QRect(60, 610, 161, 31))
+        self.button_comprimir.setGeometry(QtCore.QRect(60, 600, 161, 31))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(12)
@@ -225,7 +227,7 @@ class Ui_MainWindow(object):
         self.texteditor1.setGeometry(QtCore.QRect(120, 40, 151, 31))
         self.texteditor1.setObjectName("texteditor1")
         self.button_descomprimir = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button_descomprimir.setGeometry(QtCore.QRect(230, 610, 161, 31))
+        self.button_descomprimir.setGeometry(QtCore.QRect(230, 600, 161, 31))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(12)
@@ -312,39 +314,59 @@ class Ui_MainWindow(object):
         font.setItalic(False)
         self.label_5.setFont(font)
         self.label_5.setObjectName("label_5")
-        self.textEdit_DCT_Umbral_de_corte = QtWidgets.QTextEdit(parent=self.tab_4)
-        self.textEdit_DCT_Umbral_de_corte.setGeometry(QtCore.QRect(190, 40, 61, 31))
-        self.textEdit_DCT_Umbral_de_corte.setObjectName("textEdit_DCT_Umbral_de_corte")
+        self.textEdit_DCT_UMBRAL = QtWidgets.QTextEdit(parent=self.tab_4)
+        self.textEdit_DCT_UMBRAL.setGeometry(QtCore.QRect(270, 30, 91, 31))
+        self.textEdit_DCT_UMBRAL.setObjectName("textEdit_DCT_UMBRAL")
         self.label_14 = QtWidgets.QLabel(parent=self.tab_4)
-        self.label_14.setGeometry(QtCore.QRect(130, 30, 51, 51))
+        self.label_14.setGeometry(QtCore.QRect(210, 20, 51, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
         self.label_14.setFont(font)
         self.label_14.setObjectName("label_14")
-        self.textEdit_DCT_bitrate = QtWidgets.QTextEdit(parent=self.tab_4)
-        self.textEdit_DCT_bitrate.setGeometry(QtCore.QRect(190, 90, 61, 31))
-        self.textEdit_DCT_bitrate.setObjectName("textEdit_DCT_bitrate")
         self.label_15 = QtWidgets.QLabel(parent=self.tab_4)
-        self.label_15.setGeometry(QtCore.QRect(100, 120, 81, 51))
+        self.label_15.setGeometry(QtCore.QRect(10, 20, 91, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
         self.label_15.setFont(font)
         self.label_15.setObjectName("label_15")
+        self.textEdit_DCT_AMPLIFICACION = QtWidgets.QTextEdit(parent=self.tab_4)
+        self.textEdit_DCT_AMPLIFICACION.setGeometry(QtCore.QRect(110, 30, 91, 31))
+        self.textEdit_DCT_AMPLIFICACION.setObjectName("textEdit_DCT_AMPLIFICACION")
+        self.comboBox_tipo_de_filtro_DCT = QtWidgets.QComboBox(parent=self.tab_4)
+        self.comboBox_tipo_de_filtro_DCT.setGeometry(QtCore.QRect(180, 110, 131, 31))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setKerning(True)
+        self.comboBox_tipo_de_filtro_DCT.setFont(font)
+        self.comboBox_tipo_de_filtro_DCT.setObjectName("comboBox_tipo_de_filtro_DCT")
+        self.comboBox_tipo_de_filtro_DCT.addItem("")
+        self.comboBox_tipo_de_filtro_DCT.addItem("")
+        self.label_34 = QtWidgets.QLabel(parent=self.tab_4)
+        self.label_34.setGeometry(QtCore.QRect(90, 100, 91, 51))
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setBold(True)
+        font.setItalic(False)
+        self.label_34.setFont(font)
+        self.label_34.setObjectName("label_34")
         self.label_16 = QtWidgets.QLabel(parent=self.tab_4)
-        self.label_16.setGeometry(QtCore.QRect(140, 80, 51, 51))
+        self.label_16.setGeometry(QtCore.QRect(90, 60, 101, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
         self.label_16.setFont(font)
         self.label_16.setObjectName("label_16")
-        self.textEdit_DCT_samplerate_ = QtWidgets.QTextEdit(parent=self.tab_4)
-        self.textEdit_DCT_samplerate_.setGeometry(QtCore.QRect(190, 130, 61, 31))
-        self.textEdit_DCT_samplerate_.setObjectName("textEdit_DCT_samplerate_")
+        self.textEdit_DCT_ORDEN = QtWidgets.QTextEdit(parent=self.tab_4)
+        self.textEdit_DCT_ORDEN.setGeometry(QtCore.QRect(190, 70, 91, 31))
+        self.textEdit_DCT_ORDEN.setObjectName("textEdit_DCT_ORDEN")
         self.tabWidget.addTab(self.tab_4, "")
         self.tab_7 = QtWidgets.QWidget()
         self.tab_7.setObjectName("tab_7")
@@ -356,33 +378,22 @@ class Ui_MainWindow(object):
         font.setItalic(False)
         self.label_6.setFont(font)
         self.label_6.setObjectName("label_6")
-        self.textEdit_DWT_Umbral_de_corte = QtWidgets.QTextEdit(parent=self.tab_7)
-        self.textEdit_DWT_Umbral_de_corte.setGeometry(QtCore.QRect(200, 40, 61, 31))
-        self.textEdit_DWT_Umbral_de_corte.setObjectName("textEdit_DWT_Umbral_de_corte")
-        self.textEdit_DWR_samplerate = QtWidgets.QTextEdit(parent=self.tab_7)
-        self.textEdit_DWR_samplerate.setGeometry(QtCore.QRect(200, 130, 61, 31))
-        self.textEdit_DWR_samplerate.setObjectName("textEdit_DWR_samplerate")
-        self.textEdit_DWT_bitrate = QtWidgets.QTextEdit(parent=self.tab_7)
-        self.textEdit_DWT_bitrate.setGeometry(QtCore.QRect(200, 90, 61, 31))
-        self.textEdit_DWT_bitrate.setObjectName("textEdit_DWT_bitrate")
+        self.textEdit_DWT_Umbral = QtWidgets.QTextEdit(parent=self.tab_7)
+        self.textEdit_DWT_Umbral.setGeometry(QtCore.QRect(190, 40, 111, 31))
+        self.textEdit_DWT_Umbral.setObjectName("textEdit_DWT_Umbral")
+        self.textEdit_DWT_nivel = QtWidgets.QTextEdit(parent=self.tab_7)
+        self.textEdit_DWT_nivel.setGeometry(QtCore.QRect(190, 80, 111, 31))
+        self.textEdit_DWT_nivel.setObjectName("textEdit_DWT_nivel")
         self.label_17 = QtWidgets.QLabel(parent=self.tab_7)
-        self.label_17.setGeometry(QtCore.QRect(140, 30, 51, 51))
+        self.label_17.setGeometry(QtCore.QRect(130, 30, 51, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
         font.setItalic(False)
         self.label_17.setFont(font)
         self.label_17.setObjectName("label_17")
-        self.label_18 = QtWidgets.QLabel(parent=self.tab_7)
-        self.label_18.setGeometry(QtCore.QRect(110, 120, 81, 51))
-        font = QtGui.QFont()
-        font.setFamily("Arial Black")
-        font.setBold(True)
-        font.setItalic(False)
-        self.label_18.setFont(font)
-        self.label_18.setObjectName("label_18")
         self.label_19 = QtWidgets.QLabel(parent=self.tab_7)
-        self.label_19.setGeometry(QtCore.QRect(150, 80, 51, 51))
+        self.label_19.setGeometry(QtCore.QRect(80, 70, 111, 51))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -399,7 +410,7 @@ class Ui_MainWindow(object):
         self.label_4.setFont(font)
         self.label_4.setObjectName("label_4")
         self.label_7 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_7.setGeometry(QtCore.QRect(160, 660, 141, 21))
+        self.label_7.setGeometry(QtCore.QRect(160, 630, 141, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -408,14 +419,14 @@ class Ui_MainWindow(object):
         self.label_7.setObjectName("label_7")
         self.textEdit_TAMANO_INICIAL = QtWidgets.QTextEdit(parent=self.centralwidget)
         self.textEdit_TAMANO_INICIAL.setEnabled(False)
-        self.textEdit_TAMANO_INICIAL.setGeometry(QtCore.QRect(90, 710, 131, 31))
+        self.textEdit_TAMANO_INICIAL.setGeometry(QtCore.QRect(90, 680, 131, 31))
         self.textEdit_TAMANO_INICIAL.setObjectName("textEdit_TAMANO_INICIAL")
         self.textEdit_TAMANO_FINAL = QtWidgets.QTextEdit(parent=self.centralwidget)
         self.textEdit_TAMANO_FINAL.setEnabled(False)
-        self.textEdit_TAMANO_FINAL.setGeometry(QtCore.QRect(230, 710, 131, 31))
+        self.textEdit_TAMANO_FINAL.setGeometry(QtCore.QRect(230, 680, 131, 31))
         self.textEdit_TAMANO_FINAL.setObjectName("textEdit_TAMANO_FINAL")
         self.label_8 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_8.setGeometry(QtCore.QRect(140, 680, 61, 21))
+        self.label_8.setGeometry(QtCore.QRect(140, 650, 61, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -423,7 +434,7 @@ class Ui_MainWindow(object):
         self.label_8.setFont(font)
         self.label_8.setObjectName("label_8")
         self.label_9 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_9.setGeometry(QtCore.QRect(280, 680, 41, 21))
+        self.label_9.setGeometry(QtCore.QRect(280, 650, 41, 21))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setBold(True)
@@ -485,7 +496,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -509,13 +520,15 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "DFT"))
         self.label_5.setText(_translate("MainWindow", "Transformada de Discreta del Coseno"))
         self.label_14.setText(_translate("MainWindow", "Umbral"))
-        self.label_15.setText(_translate("MainWindow", "Sample rate"))
-        self.label_16.setText(_translate("MainWindow", "Bitrate"))
+        self.label_15.setText(_translate("MainWindow", "Amplificacion"))
+        self.comboBox_tipo_de_filtro_DCT.setItemText(0, _translate("MainWindow", "Filtro pasa bajo"))
+        self.comboBox_tipo_de_filtro_DCT.setItemText(1, _translate("MainWindow", "Filtro pasa alto"))
+        self.label_34.setText(_translate("MainWindow", "Tipo de filtro"))
+        self.label_16.setText(_translate("MainWindow", "Orden de filtro"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "DCT"))
         self.label_6.setText(_translate("MainWindow", "Transformada de Wavelet"))
         self.label_17.setText(_translate("MainWindow", "Umbral"))
-        self.label_18.setText(_translate("MainWindow", "Sample rate"))
-        self.label_19.setText(_translate("MainWindow", "Bitrate"))
+        self.label_19.setText(_translate("MainWindow", "Nivel de la DWT"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "DWT"))
         self.label_4.setText(_translate("MainWindow", "PARAMETROS DE TRANSFORMADAS"))
         self.label_7.setText(_translate("MainWindow", "Tamaño del archivo"))
@@ -552,62 +565,44 @@ class Ui_MainWindow(object):
         if not archivo_cargado:
             print("No se ha seleccionado ningún archivo.")
             return
-        
-        if Path(archivo_cargado).exists():
-            archivo_ruta = Path(archivo_cargado)
-            carpeta_salida = archivo_ruta.parent  # Usar la carpeta donde se encuentra el archivo cargado
-            # Evaluación de la transformada seleccionada en el combo box
-            transformada = self.cbx_transformada.currentText()
 
-            # Leer el archivo WAV
+        archivo_ruta = Path(archivo_cargado)
+        if not archivo_ruta.exists():
+            print("El archivo no existe.")
+            return
+
+        try:
+            # Cargar archivo de audio
             frecuencia_muestreo, datos_audio = wav.read(archivo_ruta)
-            if len(datos_audio.shape) > 1:
-                datos_audio = np.mean(datos_audio, axis=1)  # Promediar los dos canales
-                datos_audio = np.int16(datos_audio)  # Convertir a enteros
+            if len(datos_audio.shape) > 1:  # Convertir a mono si es estéreo
+                datos_audio = np.mean(datos_audio, axis=1).astype(np.int16)
 
-            # Obtener la transformada seleccionada
+            # Obtener transformada seleccionada
             transformada = self.cbx_transformada.currentText()
 
-            # ---------- TRANSFORMADAS ----------
-            # ====== GRAFICAR TRANSFORMADA DE FOURIER ======
-            transformada_fft = fft(datos_audio)
-            frecuencias = np.fft.fftfreq(len(transformada_fft), d=1/frecuencia_muestreo)
-
-            # Submuestreo para graficar menos puntos
-            factor_submuestreo = 100  # Cambia este valor según tu necesidad
-            frecuencias_sub = frecuencias[::factor_submuestreo]
-            fft_magnitud_sub = np.abs(transformada_fft[::factor_submuestreo])
-
-            # ====== GRAFICA TRANSFORMADA DEL COSENO DISCRETA ======
-            dct_data = dct(datos_audio, type=2, norm='ortho')
-            # ====== TRANSFORMADA WAVELET ======
-            coeffs = pywt.wavedec(datos_audio, 'haar', level=7)
-
+            # Función auxiliar para graficar Wavelet
             def graficar_coefs_wavelet(coeffs, nivel):
-                    """
-                    Grafica los coeficientes de la DWT (originales o filtrados).
-                    """
-                    fig, axes = plt.subplots(len(coeffs), 1, figsize=(10, 8))
-                    fig.suptitle('Coeficientes de la Transformada Wavelet', fontsize=16)
-                    
-                    for i, coef in enumerate(coeffs):
-                        if i == 0:
-                            title = "Aproximación (Nivel {})".format(nivel)
-                        else:
-                            title = "Detalle (Nivel {})".format(nivel - i + 1)
-                        axes[i].plot(coef, color='blue')
-                        axes[i].set_title(title, fontsize=10)
-                        axes[i].set_xlim(0, len(coef))
-                        axes[i].tick_params(axis='x', which='both', bottom=False, labelbottom=False)
-                    
-                    plt.tight_layout()
-                    plt.subplots_adjust(top=0.9)
-                    plt.show()
+                fig, axes = plt.subplots(len(coeffs), 1, figsize=(10, 8))
+                fig.suptitle('Coeficientes de la Transformada Wavelet', fontsize=16)
+                for i, coef in enumerate(coeffs):
+                    title = f"Aproximación (Nivel {nivel})" if i == 0 else f"Detalle (Nivel {nivel - i + 1})"
+                    axes[i].plot(coef, color='blue')
+                    axes[i].set_title(title, fontsize=10)
+                    axes[i].set_xlim(0, len(coef))
+                    axes[i].tick_params(axis='x', which='both', bottom=False, labelbottom=False)
+                plt.tight_layout()
+                plt.subplots_adjust(top=0.9)
+                plt.show()
 
+            # Opciones según la transformada
             if transformada == "Fourier":
                 print("Realizando Transformada de Fourier (DFT)")
+                transformada_fft = fft(datos_audio)
+                frecuencias = np.fft.fftfreq(len(transformada_fft), d=1 / frecuencia_muestreo)
+                # Submuestreo para graficar
+                factor_submuestreo = 100
                 plt.figure(figsize=(10, 6))
-                plt.plot(frecuencias_sub, fft_magnitud_sub)
+                plt.plot(frecuencias[::factor_submuestreo], np.abs(transformada_fft)[::factor_submuestreo])
                 plt.title('Transformada de Fourier del Audio')
                 plt.xlabel('Frecuencia (Hz)')
                 plt.ylabel('Amplitud')
@@ -615,35 +610,40 @@ class Ui_MainWindow(object):
                 plt.show()
 
             elif transformada == "Coseno discreto":
-                print("Realizando Transformada Coseno Discreto (DCT)")
-                # Parámetro para reducir puntos en la gráfica (submuestreo)
-                grafica_puntos = 2000  # Número de puntos máximo para graficar (ajústalo según tu necesidad)
-                # Crear índices de submuestreo para graficar
+                print("Realizando Transformada de Coseno Discreta (DCT)")
+                dct_data = dct(datos_audio, type=2, norm='ortho')
+                dct_data = dct_data / np.max(np.abs(dct_data))
+                grafica_puntos = 2000
                 dct_indices = np.linspace(0, len(dct_data) - 1, grafica_puntos, dtype=int)
-                # Graficar los coeficientes DCT
                 plt.figure(figsize=(10, 6))
-                plt.stem(dct_indices, dct_data[dct_indices], linefmt='b-', markerfmt='bo', basefmt=" ", label='Coeficientes DCT')
-                plt.title('Coeficientes DCT (Dominio de la Frecuencia)')
-                plt.xlabel('Índice de Frecuencia')
+                plt.stem(dct_indices, dct_data[dct_indices], linefmt='b-', markerfmt='bo', basefmt=" ", label='Coeficientes DCT Originales')
+                plt.title('Transformada de Coseno Discreta del Audio')
                 plt.ylabel('Amplitud')
                 plt.grid(True)
                 plt.legend()
-                plt.tight_layout()
                 plt.show()
 
             elif transformada == "Wavelet":
                 print("Realizando Transformada Wavelet (DWT)")
-                graficar_coefs_wavelet(coeffs, 7)
-        else:
-            print("El archivo no existe.")
+                coeffs = pywt.wavedec(datos_audio, 'haar', level=7)
+                graficar_coefs_wavelet(coeffs, nivel=7)
+
+            else:
+                print("Transformada seleccionada no reconocida.")
+
+        except Exception as e:
+            print(f"Se produjo un error: {e}")
+
              
     def filtro(self):
         global archivo_cargado, bitrate, frecuencia_de_corte, sample_rate, orden_filtro
+
 
         if not archivo_cargado:
             print("No se ha seleccionado ningun archivo")
         else:
             print("El archivo seleccionado es:",Path(archivo_cargado).name)
+
 
             if self.cbx_transformada.currentText() == "Fourier":
                 #VALIDACION DE PARAMETROS
@@ -655,12 +655,14 @@ class Ui_MainWindow(object):
                 #VALIDACION DE PARAMETROS
                 print("Transformada del coseno discreta")
                 self.validar_dct()
+                self.dct()
                 
 
             if self.cbx_transformada.currentText() == "Wavelet":
                 #VALIDACION DE PARAMETREOS
                 print("Transformada de Wavelet")
                 self.validar_dwt()
+                self.dwt()
                 
     def compresion(self):
         global sample_rate, bitrate, archivo_cargado
@@ -684,19 +686,51 @@ class Ui_MainWindow(object):
 
         
 
-        # ====== CONVERTIR A MP3 ======
-        archivo_ruta = Path(archivo_cargado)
-        carpeta_salida = archivo_ruta.parent
+        # ====== CONVERTIR A MP3 CON FECHA ======
+        try:
+            
+            archivo_ruta = Path(archivo_cargado)
+            carpeta_salida = archivo_ruta.parent
 
-        nombre_archivo_mp3 = carpeta_salida / f"{archivo_ruta.stem}_Reducido.mp3"
-        audio = AudioSegment.from_wav(archivo_cargado)
-        audio.export(nombre_archivo_mp3, format="mp3", bitrate="32k")
-        print(f'Archivo guardado en formato MP3 en: {nombre_archivo_mp3}')
+            # Obtener la fecha y hora actual en formato 'AAAAMMDD_HHMMSS'
+            fecha_hora = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+            # Crear el nombre del archivo MP3 con la fecha
+            nombre_archivo_mp3 = carpeta_salida / f"{archivo_ruta.stem}_Reducido_{fecha_hora}.mp3"
+
+            # Cargar el archivo WAV
+            audio = AudioSegment.from_wav(archivo_cargado)
+
+            # Exportar el archivo MP3 con el nombre que incluye la fecha y hora
+            audio.export(
+                nombre_archivo_mp3, 
+                format="mp3", 
+                bitrate="32k",
+                parameters=["-ar", str(sample_rate)]
+            )
+
+            # Imprimir el mensaje de confirmación
+            print(f'Archivo guardado en formato MP3 en: {nombre_archivo_mp3}')
+
+            archivo_original_tamano = os.path.getsize(archivo_ruta)  # Tamaño en bytes
+            
+            archivo_comprimido_tamano = os.path.getsize(nombre_archivo_mp3)  # Tamaño en bytes
+
+            # Convertir tamaños a MB
+            tamano_inicial_mb = archivo_original_tamano / (1024 * 1024)
+            tamano_final_mb = archivo_comprimido_tamano / (1024 * 1024)
+
+            # Mostrar tamaños en los cuadros de texto
+            self.textEdit_TAMANO_INICIAL.setPlainText(f"{tamano_inicial_mb:.2f} MB")
+            self.textEdit_TAMANO_FINAL.setPlainText(f"{tamano_final_mb:.2f} MB")
+
+
+        except Exception as e:
+            print(f"Error durante la conversión: {e}")
 
             
             
-            
+    
 
 
 
@@ -717,7 +751,7 @@ class Ui_MainWindow(object):
 
     def validar_dct(self):
         # Lista de cuadros de texto a validar
-        Cuadros_texto = [self.textEdit_DCT_Umbral_de_corte, self.textEdit_DCT_bitrate, self.textEdit_DCT_samplerate_]
+        Cuadros_texto = [self.textEdit_DCT_UMBRAL, self.textEdit_DCT_ORDEN]
 
         # Verificar si alguno está vacío
         campos_vacios = [field for field in Cuadros_texto if not field.toPlainText().strip()]
@@ -729,7 +763,7 @@ class Ui_MainWindow(object):
 
     def validar_dwt(self):
         # Lista de cuadros de texto a validar
-        Cuadros_texto = [self.textEdit_DWT_Umbral_de_corte, self.textEdit_DWT_bitrate, self.textEdit_DWR_samplerate]
+        Cuadros_texto = [self.textEdit_DWT_Umbral, self.textEdit_DWT_nivel]
 
         # Verificar si alguno está vacío
         campos_vacios = [field for field in Cuadros_texto if not field.toPlainText().strip()]
@@ -829,7 +863,96 @@ class Ui_MainWindow(object):
 
         print(f"Archivo filtrado guardado en: {name_archivo}")
 
+    def dct(self):
+        global corte_filtro, orden_filtro, archivo_cargado
+
+        # Leer el archivo de audio
+        audio_data, frecuencia_muestreo_DCT = sf.read(archivo_cargado)
         
+        try:
+            corte_filtro = float(self.textEdit_DCT_UMBRAL.toPlainText().strip())
+            orden_filtro = int(self.textEdit_DCT_ORDEN.toPlainText().strip())
+            amplificacion = float(self.textEdit_DCT_AMPLIFICACION.toPlainText().strip())
+        except ValueError:
+            print("Error: Uno o más valores no son válidos.")
+            return
+        
+        # Si el archivo tiene más de un canal (estéreo), procesamos solo el primer canal
+        if len(audio_data.shape) > 1:
+            audio_data = audio_data[:, 0]
+
+        # Realizar la Transformada Coseno Discreta (DCT)
+        dct_data = dct(audio_data, type=2, norm='ortho')
+
+        # Crear un filtro Butterworth de paso bajo
+        N = len(dct_data)
+        freqs = np.fft.fftfreq(N)
+        freqs = np.abs(freqs) / 0.5  # Normalización respecto a Nyquist
+        
+        tipo_filtro = self.comboBox_tipo_de_filtro_DCT.currentText()
+
+        # Crear el filtro Butterworth en el dominio de la frecuencia
+        if tipo_filtro == "Filtro pasa bajo":
+            filtro = 1 / (1 + (freqs / corte_filtro) ** (2 * orden_filtro))
+        elif tipo_filtro == "Filtro pasa alto":
+            filtro = 1 / (1 + (corte_filtro / np.maximum(freqs, 1e-10)) ** (2 * orden_filtro))
+
+        # Aplicar el filtro a los coeficientes DCT
+        dct_filtrada = (dct_data * filtro) * amplificacion
+
+        # Realizar la inversa de la DCT para reconstruir el audio
+        audio_filtrado = idct(dct_filtrada, type=2, norm='ortho')
+
+        # Asegurarse de que los valores estén dentro del rango permitido por el formato WAV
+        audio_filtrado = np.clip(audio_filtrado, -1.0, 1.0)
+
+        # Guardar el archivo filtrado
+        fecha_hora = datetime.now().strftime("%Y%m%d_%H%M%S")  # Formato: AAAAMMDD_HHMMSS
+        nombre_con_fecha = f"Audio_DCT_{fecha_hora}{Path(archivo_cargado).suffix}"
+        name_archivo = Path(archivo_cargado).with_name(nombre_con_fecha)
+        sf.write(name_archivo, audio_filtrado, frecuencia_muestreo_DCT)
+
+    def dwt(self):
+        global archivo_cargado
+
+        # Leer el archivo de audio
+        audio_data, frecuencia_muestreo = sf.read(archivo_cargado)
+
+        # Parámetros de la transformada wavelet
+        wavelet = 'haar'
+        umbral = float(self.textEdit_DWT_Umbral.toPlainText().strip())
+        nivel = int(self.textEdit_DWT_nivel.toPlainText().strip())
+        
+        # Aplicar la DWT
+        coeffs = pywt.wavedec(audio_data, wavelet, level=nivel)
+
+        # Filtrar coeficientes pequeños
+        coeffs_filtrados = [
+            np.where(np.abs(c) < umbral * np.max(np.abs(c)), 0, c) for c in coeffs
+        ]
+
+        # Reconstruir el audio comprimido usando la IDWT
+        audio_comprimido = pywt.waverec(coeffs_filtrados, wavelet)
+
+        # Ajustar longitud si es necesario
+        if len(audio_comprimido) > len(audio_data):
+            audio_comprimido = audio_comprimido[:len(audio_data)]
+        elif len(audio_comprimido) < len(audio_data):
+            audio_comprimido = np.pad(audio_comprimido, (0, len(audio_data) - len(audio_comprimido)))
+
+        # Asegúrate de que los valores estén dentro del rango permitido
+        audio_comprimido = np.clip(audio_comprimido, -1.0, 1.0)
+
+        # Guardar el audio comprimido
+        output_file = 'Recursos/Prueba_de_audio_comp.wav'
+        sf.write(output_file, audio_comprimido, frecuencia_muestreo)
+
+        print(f"Archivo comprimido guardado como: {output_file}")
+
+
+
+
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
