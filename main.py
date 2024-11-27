@@ -27,10 +27,10 @@ class Ui_MainWindow(object):
         MainWindow.setEnabled(True)
         MainWindow.resize(444, 760)
         MainWindow.setBaseSize(QtCore.QSize(400, 500))
+        palette = QtGui.QPalette()
         # Deshabilitar maximización
         MainWindow.setWindowFlags(QtCore.Qt.WindowType.WindowCloseButtonHint | QtCore.Qt.WindowType.WindowMinimizeButtonHint)
         MainWindow.setFixedSize(MainWindow.size())
-        palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
         palette.setBrush(QtGui.QPalette.ColorGroup.Active, QtGui.QPalette.ColorRole.WindowText, brush)
@@ -189,7 +189,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.cbx_transformada.setFont(font)
         self.cbx_transformada.setObjectName("cbx_transformada")
-        self.cbx_transformada.addItem("")
         self.cbx_transformada.addItem("")
         self.cbx_transformada.addItem("")
         self.label = QtWidgets.QLabel(parent=self.centralwidget)
@@ -368,39 +367,6 @@ class Ui_MainWindow(object):
         self.textEdit_DCT_ORDEN.setGeometry(QtCore.QRect(190, 70, 91, 31))
         self.textEdit_DCT_ORDEN.setObjectName("textEdit_DCT_ORDEN")
         self.tabWidget.addTab(self.tab_4, "")
-        self.tab_7 = QtWidgets.QWidget()
-        self.tab_7.setObjectName("tab_7")
-        self.label_6 = QtWidgets.QLabel(parent=self.tab_7)
-        self.label_6.setGeometry(QtCore.QRect(100, 0, 171, 21))
-        font = QtGui.QFont()
-        font.setFamily("Arial Black")
-        font.setBold(True)
-        font.setItalic(False)
-        self.label_6.setFont(font)
-        self.label_6.setObjectName("label_6")
-        self.textEdit_DWT_Umbral = QtWidgets.QTextEdit(parent=self.tab_7)
-        self.textEdit_DWT_Umbral.setGeometry(QtCore.QRect(190, 40, 111, 31))
-        self.textEdit_DWT_Umbral.setObjectName("textEdit_DWT_Umbral")
-        self.textEdit_DWT_nivel = QtWidgets.QTextEdit(parent=self.tab_7)
-        self.textEdit_DWT_nivel.setGeometry(QtCore.QRect(190, 80, 111, 31))
-        self.textEdit_DWT_nivel.setObjectName("textEdit_DWT_nivel")
-        self.label_17 = QtWidgets.QLabel(parent=self.tab_7)
-        self.label_17.setGeometry(QtCore.QRect(130, 30, 51, 51))
-        font = QtGui.QFont()
-        font.setFamily("Arial Black")
-        font.setBold(True)
-        font.setItalic(False)
-        self.label_17.setFont(font)
-        self.label_17.setObjectName("label_17")
-        self.label_19 = QtWidgets.QLabel(parent=self.tab_7)
-        self.label_19.setGeometry(QtCore.QRect(80, 70, 111, 51))
-        font = QtGui.QFont()
-        font.setFamily("Arial Black")
-        font.setBold(True)
-        font.setItalic(False)
-        self.label_19.setFont(font)
-        self.label_19.setObjectName("label_19")
-        self.tabWidget.addTab(self.tab_7, "")
         self.label_4 = QtWidgets.QLabel(parent=self.centralwidget)
         self.label_4.setGeometry(QtCore.QRect(110, 190, 241, 21))
         font = QtGui.QFont()
@@ -496,7 +462,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -504,7 +470,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Compresor de audio"))
         self.cbx_transformada.setItemText(0, _translate("MainWindow", "Fourier"))
         self.cbx_transformada.setItemText(1, _translate("MainWindow", "Coseno discreto"))
-        self.cbx_transformada.setItemText(2, _translate("MainWindow", "Wavelet"))
         self.label.setText(_translate("MainWindow", "Tipo de transformada"))
         self.button_comprimir.setText(_translate("MainWindow", "COMPRIMIR"))
         self.cargar_button.setText(_translate("MainWindow", "..."))
@@ -526,10 +491,6 @@ class Ui_MainWindow(object):
         self.label_34.setText(_translate("MainWindow", "Tipo de filtro"))
         self.label_16.setText(_translate("MainWindow", "Orden de filtro"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "DCT"))
-        self.label_6.setText(_translate("MainWindow", "Transformada de Wavelet"))
-        self.label_17.setText(_translate("MainWindow", "Umbral"))
-        self.label_19.setText(_translate("MainWindow", "Nivel de la DWT"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "DWT"))
         self.label_4.setText(_translate("MainWindow", "PARAMETROS DE TRANSFORMADAS"))
         self.label_7.setText(_translate("MainWindow", "Tamaño del archivo"))
         self.label_8.setText(_translate("MainWindow", "Inicial"))
@@ -539,26 +500,23 @@ class Ui_MainWindow(object):
         self.label_13.setText(_translate("MainWindow", "Sample rate"))
         self.label_12.setText(_translate("MainWindow", "Bitrate"))
 
-
         #PROGRAMA
         self.cargar_button.clicked.connect(self.cargar_archivo)
         self.button_analisis.clicked.connect(self.graficas)
         self.button_Filtro.clicked.connect(self.filtro)
         self.button_comprimir.clicked.connect(self.compresion)
-        
+        self.button_descomprimir.clicked.connect(self.decomprimir)
         
 
     def cargar_archivo(self):
-        # Abrir el cuadro de diálogo de archivos y obtener la ruta del archivo seleccionado
         global archivo_cargado
         archivo_cargado, _ = QFileDialog.getOpenFileName(
             None, "Seleccionar archivo", "", "Archivos WAV (*.wav);;Todos los archivos (*)"
         )
         if archivo_cargado:
             print(f"Archivo seleccionado: {Path(archivo_cargado).name}")
-            # Actualizar el texteditor1 con el nombre del archivo cargado
-            nombre_archivo = Path(archivo_cargado).name  # Obtiene solo el nombre del archivo
-            self.texteditor1.setPlainText(nombre_archivo)  # Muestra el nombre del archivo en el QTextEdit
+            nombre_archivo = Path(archivo_cargado).name 
+            self.texteditor1.setPlainText(nombre_archivo)
 
     def graficas(self):
         global archivo_cargado
@@ -572,29 +530,12 @@ class Ui_MainWindow(object):
             return
 
         try:
-            # Cargar archivo de audio
             frecuencia_muestreo, datos_audio = wav.read(archivo_ruta)
             if len(datos_audio.shape) > 1:  # Convertir a mono si es estéreo
                 datos_audio = np.mean(datos_audio, axis=1).astype(np.int16)
 
-            # Obtener transformada seleccionada
             transformada = self.cbx_transformada.currentText()
 
-            # Función auxiliar para graficar Wavelet
-            def graficar_coefs_wavelet(coeffs, nivel):
-                fig, axes = plt.subplots(len(coeffs), 1, figsize=(10, 8))
-                fig.suptitle('Coeficientes de la Transformada Wavelet', fontsize=16)
-                for i, coef in enumerate(coeffs):
-                    title = f"Aproximación (Nivel {nivel})" if i == 0 else f"Detalle (Nivel {nivel - i + 1})"
-                    axes[i].plot(coef, color='blue')
-                    axes[i].set_title(title, fontsize=10)
-                    axes[i].set_xlim(0, len(coef))
-                    axes[i].tick_params(axis='x', which='both', bottom=False, labelbottom=False)
-                plt.tight_layout()
-                plt.subplots_adjust(top=0.9)
-                plt.show()
-
-            # Opciones según la transformada
             if transformada == "Fourier":
                 print("Realizando Transformada de Fourier (DFT)")
                 transformada_fft = fft(datos_audio)
@@ -623,22 +564,14 @@ class Ui_MainWindow(object):
                 plt.legend()
                 plt.show()
 
-            elif transformada == "Wavelet":
-                print("Realizando Transformada Wavelet (DWT)")
-                coeffs = pywt.wavedec(datos_audio, 'haar', level=7)
-                graficar_coefs_wavelet(coeffs, nivel=7)
-
             else:
                 print("Transformada seleccionada no reconocida.")
 
         except Exception as e:
             print(f"Se produjo un error: {e}")
-
-             
+   
     def filtro(self):
         global archivo_cargado, bitrate, frecuencia_de_corte, sample_rate, orden_filtro
-
-
         if not archivo_cargado:
             print("No se ha seleccionado ningun archivo")
         else:
@@ -728,14 +661,6 @@ class Ui_MainWindow(object):
         except Exception as e:
             print(f"Error durante la conversión: {e}")
 
-            
-            
-    
-
-
-
-
-
     """________ VALIDACIONES DE RECUADROS VACIOS ________"""
     def validar_dft(self):
         # Lista de cuadros de texto a validar
@@ -774,12 +699,7 @@ class Ui_MainWindow(object):
             print("Éxito", "Todos los campos están llenos.")
     
     def validar_P_compresion(self):
-        """
-        Valida que los cuadros de texto requeridos para la compresión no estén vacíos.
-
-        Returns:
-            bool: True si todos los campos están llenos, False si alguno está vacío.
-        """
+        
         # Lista de cuadros de texto a validar
         Cuadros_texto = [self.textEdit_samplerate, self.textEdit_bitrate]
 
@@ -794,13 +714,6 @@ class Ui_MainWindow(object):
             return True  # Validación exitosa
 
     """ _________________________________________________"""
-
-
-
-
-
-
-
 
 
     """__________________ TRANSFORMADAS __________________"""
@@ -949,9 +862,25 @@ class Ui_MainWindow(object):
 
         print(f"Archivo comprimido guardado como: {output_file}")
 
-
-
-
+    def decomprimir(self):
+        # Verifica si el archivo existe
+        if not os.path.exists(archivo_cargado):
+            print("El archivo no existe")
+            return None
+        
+        # Crear la ruta de salida con extensión .wav
+        nombre_sin_extension, _ = os.path.splitext(archivo_cargado)
+        ruta_salida = f"{nombre_sin_extension}.wav"
+        
+        # Conversión de MP3 a WAV
+        try:
+            audio = AudioSegment.from_mp3(archivo_cargado)
+            audio.export(ruta_salida, format="wav")
+            print(f"Archivo convertido a WAV: {ruta_salida}")
+            return ruta_salida
+        except Exception as e:
+            print(f"Error al convertir: {e}")
+            return None
 
 if __name__ == "__main__":
     import sys
